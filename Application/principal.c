@@ -17,19 +17,23 @@ uint32_t * current_psp;
 volatile int task1_counter = 0;
 volatile int task2_counter = 0;
 
+volatile int val = 1;
+
 void switch_to_unprivileged_mode(void){
-	/*uint32_t ctrl = __get_CONTROL();
-	__set_CONTROL(ctrl);
-	
-	uint32_t psp_value = __get_PSP();
-	__set_PSP(psp_value); */
-	
-	//__set_PSP((uint32_t)&user_stack[STACK_SIZE]); // PSP est en haut de la pile utilisateur
 	__set_CONTROL(0x02); // Bit 1 = 1 -> Utilisation de PSP, Bit 0 = 0 -> Mode Non-Privilégié
 	__ISB(); // Instruction de synchronisation pour s'assurer que les changements ont bien été prises en compte
 }
 
 void SysTick_Handler(void){
+	if(val == 1){
+		val = 2;
+		current_psp = psp2;
+	} else{
+		val = 1;
+		current_psp = psp1;
+	}
+	
+	__set_PSP((uint32_t)current_psp);
 	int i = 0;
 }
 
